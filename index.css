@@ -1,6 +1,24 @@
-#child2{
-    color: blue;
+.header{
+    display: flex;
+    color: rgb(212, 25, 56);
+    padding: 10px;
+    text-align: center;
+    border: 1px solid black;
 }
-#child3{
-    color: red;
+ 
+.nav-items{
+    display: flex;
+    list-style-type: none;
+    gap: 20px;
+    margin-left: 30px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.restaurant-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px;
 }
