@@ -1,9 +1,21 @@
 import Shimmer from "./Shimmer";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 
 const Body = () =>{
         const [text, setText] = useState("");
-        return(
+        const [listOfRestaurants, setListOfRestaurants] = useState("");
+         useEffect(() => { fetchData()}, []);
+        const fetchData = async () =>{
+                
+                const data = await fetch("https://corsproxy.io/?https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.4236771&lng=78.3452597&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
+                const jsonData = await data.json();
+                console.log(jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+               setListOfRestaurants(jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
+                
+        }
+        return listOfRestaurants.length ===0 ? (<Shimmer />) :
+        
+        (
                 <div className='body'>
                         <div className='search'>
                                 <input type="text" placeholder='Search' />
@@ -18,28 +30,19 @@ const Body = () =>{
                                 }> Search  </button>        
                         </div>
 
-                        <div className='restaurant-list'>
-                                <div className='restaurant-card'>
-                                        <img className='restaurant-logo' src = "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/6deb3e554f32ea3395b2f7ea1d815751"/>
-                                        <h3> New Peacock </h3>
-                                        <h4> Indian, Chinese, Asian </h4>
-                                        <h4> 4.3 Rating </h4>
-                                </div>
-                                <div className='restaurant-card'>
-                                        <img className='restaurant-logo' src = "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/FOOD_CATALOG/IMAGES/CMS/2024/5/7/e626d86e-7158-4b2c-9eb1-cd0c1eea32e8_dfaaad93-7af8-4651-a3df-d69055262352.jpeg"/>
-                                        <h3> Mythri </h3>
-                                        <h4> Indian, Japanese, Korean</h4>
-                                        <h4> 4.5 Rating </h4>
-                                </div>
-                                <div className='restaurant-card'>
-                                        <img className='restaurant-logo' src = "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/FOOD_CATALOG/IMAGES/CMS/2025/6/5/93b60a3f-700f-434a-bea8-18ee0f752752_5be93588-0a50-4d85-8a2f-7440eb2fea9c.jpg"/>
-                                        <h3> Paradise </h3>
-                                        <h4> Indian, Mughlai, Biryani </h4>
-                                        <h4> 3.7 Rating </h4>
-                                </div>
-                                
+                        <div className="restaurant-list">
+                                {listOfRestaurants.map((restaurant) => (
+                                        <div className="restaurant-card" key={restaurant.info.id}>
+                                                <img className="restaurant-logo"
+                                                src={"https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/" + restaurant.info.cloudinaryImageId}  alt={restaurant.info.name}/>
+                                                <h3>{restaurant.info.name}</h3>
+                                                <h4>{restaurant.info.cuisines.join(", ")}</h4>
+                                                <h4>{restaurant.info.avgRating} ⭐</h4>
+                                                <h4>{restaurant.info.areaName}</h4>
+                                        </div>
+                                        ))}
                         </div>
-                </div>
+        </div>
         );
 }; 
 
