@@ -2,10 +2,12 @@ import Shimmer from "./Shimmer";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useRestaurantInfo from "../utils/useRestaurantInfo";
+import useOnlineStatus from "../utils/useOnlineStatus";
 
 const Body = () => {
   const [searchText, setSearchText] = useState("");
   const {listOfRestaurants, filteredRestaurants, setFilteredRestaurants }  = useRestaurantInfo();
+  const status = useOnlineStatus();
 
   if (listOfRestaurants.length === 0) return <Shimmer />;
 
@@ -15,6 +17,8 @@ const Body = () => {
     );
     setFilteredRestaurants(filtered);
   };
+
+    if(status===false) return <h1>Looks like you're offline, Please check your internet connection !!</h1>
 
   return (
     <div className="body">

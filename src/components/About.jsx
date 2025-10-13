@@ -9,9 +9,7 @@ const About = () =>{
                 You'll get 50% off on each order for a life time with an additional 50% imposed tarrifs 
                 on each delivery for a lifetime.
                 Hurry Up !!</p>
-                <User name={"Arun Sai Narla"} location = {"Orlando"} role={"Software Engineer"}/>
-                <br/>
-                <UserClass name={"Arun Sai Narla"} location = {"Orlando"} role={"Software Engineer"}/>
+            <User name={"Arun Sai Narla"} location = {"Orlando"} role={"Software Engineer"}/>
         </div>
     );
 }
