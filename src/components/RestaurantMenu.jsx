@@ -1,24 +1,44 @@
 import { useState, useEffect } from "react";
-import Shimmer from "./Shimmer";
 import { useParams } from "react-router-dom";
-import menuData from "../menu_sample.json"; // using local JSON
+import Shimmer from "./Shimmer";
+import menuData from "../menu_sample.json";
 
 const RestaurantMenu = () => {
   const [menu, setMenu] = useState(null);
+  const [error, setError] = useState(null);
   const { resId } = useParams();
 
   useEffect(() => {
-    setMenu(menuData.data || menuData); // adjust for mock data
-  }, []);
+    const fetchMenu = async () => {
+      try {
+        const res = await fetch(
+          `https://corsproxy.io/?https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=17.4236771&lng=78.3452597&restaurantId=${resId}`
+        );
+        const json = await res.json();
+
+        // Some restaurants might have incomplete data, use fallback
+        if (!json?.data) {
+          console.warn("Fallback to local menu data...");
+          setMenu(menuData.data || menuData);
+        } else {
+          setMenu(json.data);
+        }
+      } catch (err) {
+        setMenu(menuData.data || menuData);
+        setError("Showing sample menu (live data blocked)");
+      }
+    };
+
+    fetchMenu();
+  }, [resId]);
 
   if (!menu) return <Shimmer />;
 
-  const info = menu?.cards?.[2]?.card?.card?.info;
+  const info = menu?.cards?.find((c) => c.card?.card?.info)?.card?.card?.info;
   const regularCards =
     menu?.cards?.find((c) => c.groupedCard)?.groupedCard?.cardGroupMap?.REGULAR
       ?.cards || [];
 
-  // Flatten all dish entries across categories
   const allItems = regularCards
     .flatMap((c) => c.card?.card?.itemCards || [])
     .map((item) => item.card?.info)
@@ -31,6 +51,8 @@ const RestaurantMenu = () => {
 
   return (
     <div className="res-card-info">
+      {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
+
       <h2>
         {name} - {city} - {avgRating}
       </h2>
@@ -44,7 +66,6 @@ const RestaurantMenu = () => {
           <li key={`${dish.id}-${idx}`}>
             {dish.name} - ₹{(dish.price ?? dish.defaultPrice ?? 0) / 100}
           </li>
-
         ))}
       </ul>
     </div>

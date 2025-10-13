@@ -1,28 +1,11 @@
 import Shimmer from "./Shimmer";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import useRestaurantInfo from "../utils/useRestaurantInfo";
 
 const Body = () => {
   const [searchText, setSearchText] = useState("");
-  const [listOfRestaurants, setListOfRestaurants] = useState([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    const data = await fetch(
-      "https://corsproxy.io/?https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.4236771&lng=78.3452597&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
-    );
-    const json = await data.json();
-    const restaurants =
-      json?.data?.cards?.[4]?.card?.card?.gridElements?.infoWithStyle
-        ?.restaurants || [];
-
-    setListOfRestaurants(restaurants);
-    setFilteredRestaurants(restaurants);
-  };
+  const {listOfRestaurants, filteredRestaurants, setFilteredRestaurants }  = useRestaurantInfo();
 
   if (listOfRestaurants.length === 0) return <Shimmer />;
 
