@@ -1,6 +1,6 @@
 import Shimmer from "./Shimmer";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import RestaurantCard, {highlyRatedRestaurants} from "./RestaurantCard";
 import useRestaurantInfo from "../utils/useRestaurantInfo";
 import useOnlineStatus from "../utils/useOnlineStatus";
 
@@ -8,7 +8,7 @@ const Body = () => {
   const [searchText, setSearchText] = useState("");
   const { listOfRestaurants, filteredRestaurants, setFilteredRestaurants } = useRestaurantInfo();
   const status = useOnlineStatus();
-
+  const LabelPromotedRestaurants = highlyRatedRestaurants(RestaurantCard);
   if (listOfRestaurants.length === 0) return <Shimmer />;
 
   const handleSearch = () => {
@@ -17,7 +17,7 @@ const Body = () => {
     );
     setFilteredRestaurants(filtered);
   };
-
+  console.log("data", listOfRestaurants);
   if (status === false)
     return (
       <h1 className="text-center mt-20 text-xl text-red-600 font-semibold">
@@ -49,26 +49,8 @@ const Body = () => {
       {/* 🍴 Restaurant list */}
       <div className="flex flex-wrap justify-center gap-6 px-6">
         {filteredRestaurants.map((restaurant) => {
-          const { id, name, cloudinaryImageId, cuisines, avgRating, areaName } = restaurant.info;
-          return (
-            <Link to={`/restaurant/${id}`} key={id}>
-              <div className="w-64 bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
-                <img
-                  src={`https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/${cloudinaryImageId}`}
-                  alt={name}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800 truncate">{name}</h3>
-                  <p className="text-sm text-gray-500">{cuisines.join(", ")}</p>
-                  <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
-                    <span>⭐ {avgRating}</span>
-                    <span>{areaName}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          );
+          if(restaurant.info.avgRating >= 4.3) return <LabelPromotedRestaurants restaurant={restaurant} key={restaurant.info.id}/>
+          return <RestaurantCard restaurant={restaurant} key={restaurant.info.id}/>
         })}
       </div>
     </div>
