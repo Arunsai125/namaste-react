@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Shimmer from "./Shimmer";
 import menuData from "../menu_sample.json";
+import RestaurantCategory from "./RestaurantCategory";
 
 const RestaurantMenu = () => {
   const [menu, setMenu] = useState(null);
@@ -27,7 +28,6 @@ const RestaurantMenu = () => {
         setError("Showing sample menu (live data blocked)");
       }
     };
-
     fetchMenu();
   }, [resId]);
 
@@ -35,56 +35,44 @@ const RestaurantMenu = () => {
 
   const info = menu?.cards?.find((c) => c.card?.card?.info)?.card?.card?.info;
   const regularCards =
-    menu?.cards?.find((c) => c.groupedCard)?.groupedCard?.cardGroupMap?.REGULAR?.cards || [];
-
-  const allItems = regularCards
-    .flatMap((c) => c.card?.card?.itemCards || [])
-    .map((item) => item.card?.info)
-    .filter(Boolean);
+    menu?.cards?.find((c) => c.groupedCard)?.groupedCard?.cardGroupMap?.REGULAR
+      ?.cards || [];
+  const allItems = Array.from(
+    new Map(
+      regularCards
+        .flatMap((c) => c.card?.card?.itemCards || [])
+        .map((item) => [item.card?.info?.id, item.card?.info])
+    ).values()
+  );
 
   if (!info || allItems.length === 0)
-    return <h3 className="text-center text-gray-600 mt-10 text-lg">
-      Menu data not available for this restaurant.
-    </h3>;
+    return (
+      <h3 className="text-center text-gray-600 mt-10 text-lg">
+        Menu data not available for this restaurant.
+      </h3>
+    );
 
   const { name, city, costForTwoMessage, cuisines, avgRating } = info;
-
+  const newData =
+    menuData.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+      (c) =>
+        c.card?.card?.["@type"] ===
+        "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+    );
+  console.log(newData);
   return (
-    <div className="m-6 p-6">
-      <h2 className="text-2xl font-bold mb-2">
+    <div className="text-center m-6 p-6">
+      <h2 className=" text-2xl font-bold mb-2">
         {name} • {city} • ⭐ {avgRating}
       </h2>
       <h4 className="text-gray-600 mb-6">
         {cuisines.join(", ")} • {costForTwoMessage}
       </h4>
-
-      <h3 className="text-xl font-semibold mb-4">Recommended Dishes</h3>
-
-      <div className="flex flex-wrap justify-center gap-6">
-        {allItems.map((dish, idx) => (
-          <div
-            key={`${dish.id}-${idx}`}
-            className="w-56 bg-white rounded-xl shadow-md p-4 m-3 hover:scale-105 hover:shadow-lg transition-all duration-200"
-          >
-            <img
-              src={
-                dish.imageId
-                  ? `https://media-assets.swiggy.com/swiggy/image/upload/${dish.imageId}`
-                  : "/placeholder.jpg"
-              }
-              alt={dish.name}
-              className="w-full h-40 object-cover rounded-lg mb-3"
-            />
-            <h3 className="text-lg font-semibold text-gray-800">{dish.name}</h3>
-            <p className="text-sm text-gray-500 mt-1">
-              ₹{(dish.price ?? dish.defaultPrice ?? 0) / 100}
-            </p>
-          </div>
-        ))}
-      </div>
-
+      {newData.map((c, idx) => (
+        <RestaurantCategory key={idx} category={c.card.card} />
+      ))}
       {error && (
-        <p className="text-center text-red-500 mt-4 font-medium">{error}</p>
+        <p className="text-center text-blue-300 mt-4 font-medium">{error}</p>
       )}
     </div>
   );
