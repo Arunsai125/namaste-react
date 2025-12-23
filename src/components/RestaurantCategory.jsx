@@ -1,23 +1,18 @@
-import { useState } from "react";
 import ShowItems from "./ShowItems";
 
-const RestaurantCategory = ({ category }) => {
-  const [click, setClick] = useState(false);
-  const functionClick = () => {
-    setClick(!click);
+const RestaurantCategory = ({ category, showItems, setShowIndex }) => {
+  const handleClick = () => {
+    setShowIndex();
   };
   return (
-    <div
-      className="w-6/12 m-auto bg-gray-300  p-2  cursor-pointer"
-      onClick={functionClick}
-    >
-      <div className="flex justify-between">
+    <div className="w-6/12 m-auto bg-gray-300  p-2  cursor-pointer">
+      <div className="flex justify-between" onClick={handleClick}>
         <span className="font-bold text-lg">
           {category.title} ({category.itemCards.length})
         </span>
         <span>⌄</span>
       </div>
-      {click && <ShowItems items={category.itemCards} />}
+      {showItems && <ShowItems items={category.itemCards} />}
     </div>
   );
 };

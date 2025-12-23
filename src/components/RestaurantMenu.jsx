@@ -8,6 +8,7 @@ const RestaurantMenu = () => {
   const [menu, setMenu] = useState(null);
   const [error, setError] = useState(null);
   const { resId } = useParams();
+  const [showIndex, setShowIndex] = useState(0);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -69,7 +70,12 @@ const RestaurantMenu = () => {
         {cuisines.join(", ")} • {costForTwoMessage}
       </h4>
       {newData.map((c, idx) => (
-        <RestaurantCategory key={idx} category={c.card.card} />
+        <RestaurantCategory
+          key={idx}
+          category={c.card.card}
+          showItems={idx === showIndex}
+          setShowIndex={() => setShowIndex(idx)}
+        />
       ))}
       {error && (
         <p className="text-center text-blue-300 mt-4 font-medium">{error}</p>
