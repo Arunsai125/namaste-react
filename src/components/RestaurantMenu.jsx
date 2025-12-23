@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Shimmer from "./Shimmer";
 import menuData from "../menu_sample.json";
+import RestaurantCategory from "./RestaurantCategory";
 
 const RestaurantMenu = () => {
   const [menu, setMenu] = useState(null);
   const [error, setError] = useState(null);
   const { resId } = useParams();
+  const [showIndex, setShowIndex] = useState(0);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -16,7 +18,6 @@ const RestaurantMenu = () => {
         );
         const json = await res.json();
 
-        // Some restaurants might have incomplete data, use fallback
         if (!json?.data) {
           console.warn("Fallback to local menu data...");
           setMenu(menuData.data || menuData);
@@ -28,7 +29,6 @@ const RestaurantMenu = () => {
         setError("Showing sample menu (live data blocked)");
       }
     };
-
     fetchMenu();
   }, [resId]);
 
@@ -38,36 +38,48 @@ const RestaurantMenu = () => {
   const regularCards =
     menu?.cards?.find((c) => c.groupedCard)?.groupedCard?.cardGroupMap?.REGULAR
       ?.cards || [];
-
-  const allItems = regularCards
-    .flatMap((c) => c.card?.card?.itemCards || [])
-    .map((item) => item.card?.info)
-    .filter(Boolean);
+  const allItems = Array.from(
+    new Map(
+      regularCards
+        .flatMap((c) => c.card?.card?.itemCards || [])
+        .map((item) => [item.card?.info?.id, item.card?.info])
+    ).values()
+  );
 
   if (!info || allItems.length === 0)
-    return <h3>Menu data not available for this restaurant.</h3>;
+    return (
+      <h3 className="text-center text-gray-600 mt-10 text-lg">
+        Menu data not available for this restaurant.
+      </h3>
+    );
 
   const { name, city, costForTwoMessage, cuisines, avgRating } = info;
-
+  const newData =
+    menuData.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+      (c) =>
+        c.card?.card?.["@type"] ===
+        "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+    );
+  console.log(newData);
   return (
-    <div className="res-card-info">
-      {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
-
-      <h2>
-        {name} - {city} - {avgRating}
+    <div className="text-center m-6 p-6">
+      <h2 className=" text-2xl font-bold mb-2">
+        {name} • {city} • ⭐ {avgRating}
       </h2>
-      <h4>
-        {cuisines.join(", ")} - {costForTwoMessage}
+      <h4 className="text-gray-600 mb-6">
+        {cuisines.join(", ")} • {costForTwoMessage}
       </h4>
-
-      <h3>Recommended Dishes</h3>
-      <ul>
-        {allItems.map((dish, idx) => (
-          <li key={`${dish.id}-${idx}`}>
-            {dish.name} - ₹{(dish.price ?? dish.defaultPrice ?? 0) / 100}
-          </li>
-        ))}
-      </ul>
+      {newData.map((c, idx) => (
+        <RestaurantCategory
+          key={idx}
+          category={c.card.card}
+          showItems={idx === showIndex}
+          setShowIndex={() => setShowIndex(idx)}
+        />
+      ))}
+      {error && (
+        <p className="text-center text-blue-300 mt-4 font-medium">{error}</p>
+      )}
     </div>
   );
 };

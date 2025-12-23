@@ -3,7 +3,7 @@ import UserClass from "./UserClass";
 
 const About = () =>{
     return(
-        <div className="about-comp">
+        <div className="text-center m-10 p-10">
             <h1> About Us !</h1>
             <p>We are a leading food delivery app with over 50,000 active users world wide. 
                 You'll get 50% off on each order for a life time with an additional 50% imposed tarrifs 
