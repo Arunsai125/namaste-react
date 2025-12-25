@@ -9,16 +9,21 @@ import Contact from "./src/components/Contact";
 import Error from "./src/components/Error"
 import RestaurantMenu from './src/components/RestaurantMenu';
 import Cart from "./src/components/Cart";
+import UserContext from "./src/utils/UserContext";
                                          
 const Grocery = lazy(() => import("./src/components/Grocery"));
 
+const userName = "Arun Sai Narla";
+
 const App = () =>{
         return(
+                <UserContext.Provider value={{loggedInUser : userName}}>
                 <div> 
                         <Header/>
                         <Outlet />
                         <Footer/>
                 </div>
+                </UserContext.Provider>
         );
 };
 
