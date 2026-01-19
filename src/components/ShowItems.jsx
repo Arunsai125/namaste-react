@@ -15,10 +15,6 @@ const ShowItems = ({ items }) => {
     }));
   };
 
-  if (!items || items.length === 0) {
-    return <p>No items</p>;
-  }
-
   return (
     <div>
       {items.map((item, index) => {
